@@ -1,26 +1,148 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================
+   EtsyGo · 黑白桔兰 · 高级国际风
+   白/近黑 底子 + 桔(Etsy 橙 #f1641e) 主色 + 兰(深紫靛 #2e2740) 高级深色面
+   干净、克制、留白、精炼卡片与药丸。无手作纹理/缝边/毛笔。
+   ============================================================ */
+@theme {
+  --color-bg: #f5f5f7;         /* 页面底(冷白) */
+  --color-surface: #ffffff;    /* 卡片白 */
+  --color-mist: #f4f4f6;       /* 浅中性填充 */
+  --color-ink: #1c1c1c;        /* 近黑主文字 */
+  --color-ink-2: #595959;      /* 次文字 */
+  --color-ink-3: #8c8c8c;      /* 浅文字 */
+  --color-ink-4: #bdbdbd;      /* 更浅 */
+  --color-line: #e6e6ea;       /* 描边 */
+  --color-line-soft: #eeeef1;
+
+  --color-orange: #f1641e;     /* 桔 · 主色 */
+  --color-orange-deep: #d94f12;
+  --color-orange-soft: #fdeee6;
+
+  --color-plum: #2e2740;       /* 兰 · 高级深色面 */
+  --color-plum-2: #443a5e;
+  --color-plum-soft: #efedf4;
+  --color-slate: #5f6591;
+
+  --color-danger: #c0152f;
+  --color-danger-soft: #fbe4e6;
+
+  --font-serif: "Noto Serif SC", Georgia, "Songti SC", serif;
+  --font-sans: "Noto Sans SC", system-ui, -apple-system, sans-serif;
+  --font-hand: var(--font-serif);
+  --font-num: "Fraunces", "Noto Serif SC", serif;
+  --radius-tag: 18px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ---------------- 基础 ---------------- */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
+h1, h2, h3, h4 { font-family: var(--font-serif); font-weight: 700; letter-spacing: -0.01em; }
+
+/* 叙事强调:优雅斜体衬线(替代毛笔手写) */
+.font-hand { font-family: var(--font-serif); font-style: italic; font-weight: 600; letter-spacing: 0.01em; }
+.font-num { font-family: var(--font-num); font-feature-settings: "tnum" 1; letter-spacing: -0.015em; }
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--color-orange); font-weight: 700;
+}
+
+/* ---------------- 卡片:干净高级 ---------------- */
+.tag, .paper {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-tag);
+  box-shadow: 0 1px 2px rgba(28, 28, 40, 0.04), 0 18px 40px -30px rgba(28, 28, 40, 0.45);
+}
+.tag--punched::before { content: none; } /* 去掉吊牌打孔 */
+
+/* 兰 高级深色面 */
+.dark-surface { background: var(--color-plum); color: #efedf6; }
+
+/* ---------------- 状态药丸:精炼 ---------------- */
+.seal {
+  display: inline-flex; align-items: center; gap: 0.34em;
+  padding: 0.2rem 0.62rem; border-radius: 999px;
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.01em;
+}
+.seal::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: currentColor; }
+.seal-orange { color: #c14600; background: var(--color-orange-soft); }
+.seal-plum { color: #2e2740; background: var(--color-plum-soft); }
+.seal-red { color: var(--color-danger); background: var(--color-danger-soft); }
+.seal-ink { color: var(--color-ink-2); background: #f0f0f2; }
+
+/* ---------------- 按钮 ---------------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  font-family: var(--font-sans); font-weight: 600;
+  border-radius: 12px; padding: 0.72rem 1.1rem; font-size: 0.95rem;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+  cursor: pointer; border: none;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--color-orange); color: #fff; box-shadow: 0 12px 24px -14px rgba(241, 100, 30, 0.9); }
+.btn-primary:hover { background: var(--color-orange-deep); }
+.btn-ghost { background: #fff; color: var(--color-ink); box-shadow: inset 0 0 0 1px var(--color-line); }
+.btn-ghost:hover { background: var(--color-mist); }
+.btn-dark { background: var(--color-plum); color: #fff; }
+.btn-dark:hover { background: var(--color-plum-2); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ---------------- 进度条 ---------------- */
+.bar { height: 7px; border-radius: 999px; background: #ececef; overflow: hidden; }
+.bar > span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--color-orange), #ff8a52); }
+
+/* ---------------- 移动端框 ---------------- */
+.phone { width: 100%; max-width: 440px; margin: 0 auto; min-height: 100dvh; background-color: var(--color-bg); position: relative; }
+
+/* 底部 tab */
+.tabbar {
+  position: sticky; bottom: 0; z-index: 30;
+  background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
+  border-top: 1px solid var(--color-line);
+}
+
+/* admin 侧栏 */
+.nav-link {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.62rem 0.85rem; border-radius: 10px;
+  color: var(--color-ink-2); font-weight: 500; font-size: 0.92rem;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.nav-link:hover { background: var(--color-mist); color: var(--color-ink); }
+.nav-link[data-active="true"] { background: var(--color-plum); color: #fff; box-shadow: 0 12px 22px -14px rgba(46, 39, 64, 0.8); }
+
+/* admin 账本表格 */
+.atable { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+.atable thead th {
+  text-align: left; font-weight: 600; color: var(--color-ink-3);
+  font-size: 0.72rem; letter-spacing: 0.04em;
+  padding: 0.62rem 0.95rem; border-bottom: 1px solid var(--color-line); white-space: nowrap;
+}
+.atable tbody td { padding: 0.72rem 0.95rem; border-bottom: 1px solid #f0f0f2; color: var(--color-ink); vertical-align: middle; }
+.atable tbody tr:last-child td { border-bottom: none; }
+.atable tbody tr:hover td { background: #f8f8fa; }
+.atable .right { text-align: right; }
+.atable .num { font-family: var(--font-num); font-feature-settings: "tnum" 1; }
+
+/* 开关 */
+.switch { width: 42px; height: 24px; border-radius: 999px; position: relative; transition: background 0.15s ease; cursor: pointer; border: none; }
+.switch > i { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 999px; background: #fff; transition: left 0.15s ease; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); }
+.switch[data-on="true"] > i { left: 21px; }
+
+* { scrollbar-width: thin; scrollbar-color: var(--color-line) transparent; }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.rise-2 { animation-delay: 0.08s; }
+.rise-3 { animation-delay: 0.16s; }
+.rise-4 { animation-delay: 0.24s; }

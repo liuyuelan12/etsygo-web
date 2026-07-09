@@ -1,0 +1,274 @@
+// EtsyGo 小铺 — 主网托管式数据模型
+// 托管式 + 链下账本。金额用 Decimal(38,18) 承载 18 位精度的 USDT，杜绝浮点。
+// 时间一律存 UTC；业务窗口(计息/提现)在应用层按 UTC+7 判定。
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------- 枚举 ----------------
+enum UserStatus {
+  active
+  frozen
+}
+
+enum ShopMode {
+  pin // 拼店 300~1500
+  solo // 独立店 3000~6000
+}
+
+enum OrderStatus {
+  active // 计息中/营业中
+  matured // 已到期
+  exited // 提前退出
+}
+
+enum WithdrawStatus {
+  pending // 审核中
+  approved // 已通过(待出款)
+  paid // 已到账
+  rejected // 已驳回
+  canceled // 已取消
+}
+
+enum LedgerType {
+  deposit // 充值入金
+  invest // 开店扣减(本金转入订单)
+  interest // 每日收益
+  principal // 到期本金返还
+  commission // 分销佣金
+  withdraw // 提现扣减
+  withdraw_refund // 提现取消/驳回退回
+  penalty // 提前退出违约扣减
+  adjust // 人工调整
+}
+
+enum ChainTxType {
+  deposit
+  payout
+}
+
+enum ChainTxStatus {
+  seen // 已监听到
+  confirmed // 已确认入账
+  failed
+}
+
+enum AdminRole {
+  root
+  staff
+}
+
+// ---------------- 用户与资金 ----------------
+model User {
+  id             String     @id @default(cuid())
+  email          String     @unique
+  passwordHash   String
+  emailVerifiedAt DateTime?
+  status         UserStatus @default(active)
+  registeredAt   DateTime   @default(now()) // 注册日：邮箱验证完成置位前用建号时间，验证后以 emailVerifiedAt 为准
+  depositAddress String?    @unique // HD 派生的专属充值地址
+  depositIndex   Int?       @unique // 派生 index
+  etsygoShop       String? // 绑定的 EtsyGo 店铺名(独立店)
+  commissionTier Int        @default(1) // 代理等级(1..10 → 5%..50%)，由上线设置
+  isAgent        Boolean    @default(false) // 是否代理(前端"代理"字眼仅代理可见)
+  verifyCode      String? // 邮箱验证码
+  verifyExpiresAt DateTime?
+
+  referrerId String?
+  referrer   User?   @relation("Referral", fields: [referrerId], references: [id])
+  referrals  User[]  @relation("Referral")
+
+  balance       Balance?
+  orders        InvestmentOrder[]
+  ledger        LedgerEntry[]
+  withdrawals   WithdrawOrder[]
+  ancestors     AgentRelation[]   @relation("Descendant")
+  descendants   AgentRelation[]   @relation("Ancestor")
+  commissions   CommissionRecord[] @relation("Beneficiary")
+  sourcedComm   CommissionRecord[] @relation("Source")
+  freezeLogs    FreezeLog[]
+  chainTxs      ChainTx[]
+
+  createdAt DateTime @default(now())
+
+  @@index([referrerId])
+}
+
+model Balance {
+  userId        String   @id
+  user          User     @relation(fields: [userId], references: [id])
+  available     Decimal  @default(0) @db.Decimal(38, 18) // 可动用余额(充值/收益/本金/佣金汇入)
+  totalInvested Decimal  @default(0) @db.Decimal(38, 18) // 累计投资总额
+  usedWithdraw  Decimal  @default(0) @db.Decimal(38, 18) // 已用提现总额(成功提现累计)
+  locked        Decimal  @default(0) @db.Decimal(38, 18) // 提现审核中锁定
+  updatedAt     DateTime @updatedAt
+}
+
+// 账本：一切余额变动的单一真相
+model LedgerEntry {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  type         LedgerType
+  amount       Decimal    @db.Decimal(38, 18) // 正=入账，负=扣减
+  balanceAfter Decimal    @db.Decimal(38, 18)
+  refId        String? // 关联订单/提现/充值 id
+  memo         String?
+  createdAt    DateTime   @default(now())
+
+  @@index([userId, createdAt])
+  @@index([type])
+}
+
+// ---------------- 投资 / 计息 ----------------
+model InvestmentOrder {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  tierAmount  Decimal     @db.Decimal(38, 18)
+  mode        ShopMode
+  dailyRate   Decimal     @db.Decimal(10, 6) // 占位日收益率，如 0.01 = 1%/日
+  periodDays  Int
+  startedAt   DateTime    @default(now())
+  maturesAt   DateTime
+  status      OrderStatus @default(active)
+  earned      Decimal     @default(0) @db.Decimal(38, 18) // 累计已发收益
+  etsygoShop    String?
+  interests   InterestRecord[]
+  commissions CommissionRecord[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model InterestRecord {
+  id      String          @id @default(cuid())
+  orderId String
+  order   InvestmentOrder @relation(fields: [orderId], references: [id])
+  date    String // YYYY-MM-DD (UTC+7)，幂等键
+  amount  Decimal         @db.Decimal(38, 18)
+  createdAt DateTime      @default(now())
+
+  @@unique([orderId, date]) // 幂等：同订单同日只发一次
+}
+
+// ---------------- 提现 ----------------
+model WithdrawOrder {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id])
+  amount      Decimal        @db.Decimal(38, 18)
+  fee         Decimal        @db.Decimal(38, 18)
+  feeReason   String
+  toAddress   String
+  status      WithdrawStatus @default(pending)
+  txHash      String? // 出款链上 txid
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  submittedAt DateTime       @default(now())
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ---------------- 分销 / 佣金 ----------------
+// 闭包表：每条记录表示 descendant 的第 depth 层祖先是 ancestor
+model AgentRelation {
+  ancestorId   String
+  descendantId String
+  depth        Int // 1=直接上级
+  ancestor     User   @relation("Ancestor", fields: [ancestorId], references: [id])
+  descendant   User   @relation("Descendant", fields: [descendantId], references: [id])
+
+  @@id([ancestorId, descendantId])
+  @@index([descendantId])
+}
+
+model CommissionConfig {
+  level          Int     @id // 1..10
+  pct            Decimal @db.Decimal(5, 2) // 5.00 ~ 50.00
+  enabled        Boolean @default(true)
+  needSpecialPerm Boolean @default(false)
+}
+
+model CommissionRecord {
+  id            String          @id @default(cuid())
+  beneficiaryId String
+  beneficiary   User            @relation("Beneficiary", fields: [beneficiaryId], references: [id])
+  sourceUserId  String
+  sourceUser    User            @relation("Source", fields: [sourceUserId], references: [id])
+  sourceOrderId String?
+  sourceOrder   InvestmentOrder? @relation(fields: [sourceOrderId], references: [id])
+  level         Int
+  pct           Decimal         @db.Decimal(5, 2)
+  amount        Decimal         @db.Decimal(38, 18)
+  date          String // YYYY-MM-DD
+  createdAt     DateTime        @default(now())
+
+  @@index([beneficiaryId])
+}
+
+// ---------------- 风控 / 审计 / 链上 ----------------
+model FreezeLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  frozen    Boolean // true=冻结 false=解冻
+  operator  String
+  reason    String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model OperationLog {
+  id        String   @id @default(cuid())
+  operator  String
+  action    String
+  target    String
+  before    String?
+  after     String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model ChainTx {
+  id            String        @id @default(cuid())
+  txHash        String        @unique // 幂等
+  type          ChainTxType
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id])
+  amount        Decimal       @db.Decimal(38, 18)
+  fromAddress   String?
+  toAddress     String?
+  confirmations Int           @default(0)
+  status        ChainTxStatus @default(seen)
+  blockNumber   Int?
+  createdAt     DateTime      @default(now())
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ---------------- 管理 / 配置 ----------------
+model AdminUser {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  passwordHash String
+  role         AdminRole @default(staff)
+  createdAt    DateTime  @default(now())
+}
+
+// 可配置占位业务参数(后台「参数配置」页可改)
+model Setting {
+  key       String   @id
+  value     String // JSON 字符串
+  updatedAt DateTime @updatedAt
+}
