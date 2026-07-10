@@ -68,6 +68,7 @@ enum AdminRole {
 model User {
   id             String     @id @default(cuid())
   email          String     @unique
+  username       String?    @unique // 用户自设的唯一用户名(登录仍用邮箱；前端/后台展示用)
   passwordHash   String
   emailVerifiedAt DateTime?
   status         UserStatus @default(active)

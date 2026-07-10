@@ -53,6 +53,7 @@ export default async function AdminUsersPage() {
         <table className="atable">
           <thead>
             <tr>
+              <th>用户名</th>
               <th>邮箱</th>
               <th>注册</th>
               <th className="right">累计投资</th>
@@ -67,7 +68,8 @@ export default async function AdminUsersPage() {
           <tbody>
             {users.map((u) => (
               <tr key={u.id}>
-                <td className="font-medium">{u.email}</td>
+                <td className="font-medium">{u.username ?? <span style={{ color: "#bdbdbd" }}>—</span>}</td>
+                <td style={{ color: "#595959" }}>{u.email}</td>
                 <td style={{ color: "#595959" }}>
                   {fmtVN(u.registeredAt.toISOString())}
                   <span style={{ color: "#8c8c8c" }}> · {Math.max(0, daysSince(u.registeredAt.toISOString(), new Date().toISOString()))}天</span>

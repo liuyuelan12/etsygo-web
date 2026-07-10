@@ -39,7 +39,7 @@ export default async function HomePage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo/etsygo-icon.svg" alt="EtsyGo" className="h-9 w-9" />
           <div className="leading-tight">
-            <div className="font-serif text-[1.05rem] font-bold">EtsyGo</div>
+            <div className="font-serif text-[1.05rem] font-bold">{user.username ?? "EtsyGo"}</div>
             <div className="text-[0.66rem]" style={{ color: "#757575" }}>{user.email}</div>
           </div>
         </div>

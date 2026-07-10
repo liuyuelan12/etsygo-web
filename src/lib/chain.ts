@@ -6,6 +6,10 @@ export const BSC_RPC_URL = process.env.BSC_RPC_URL ?? process.env.NODEREAL_BNB_M
 export const USDT_ADDRESS =
   process.env.USDT_ADDRESS ?? "0x55d398326f99059ff775485246999027b3197955";
 
+// 平台统一收款地址（所有用户充值到此地址；到账后由后台人工确认入账）
+export const RECEIVE_ADDRESS =
+  process.env.ADDRESS_TO_RECEIVE_FUNDS ?? "0xAE95EDe57dccFbC0c2aCE0B857e7d30CD2Bd9755";
+
 const ERC20_ABI = [
   "function balanceOf(address) view returns (uint256)",
   "function transfer(address to, uint256 value) returns (bool)",

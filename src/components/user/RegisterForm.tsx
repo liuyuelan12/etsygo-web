@@ -9,6 +9,7 @@ export default function RegisterForm({ t }: { t: Dict["auth"] }) {
   const router = useRouter();
   const [step, setStep] = useState<"form" | "verify">("form");
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [err, setErr] = useState("");
@@ -20,7 +21,7 @@ export default function RegisterForm({ t }: { t: Dict["auth"] }) {
     setLoading(true);
     try {
       const ref = new URLSearchParams(window.location.search).get("ref") || undefined;
-      const r = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password, ref }) });
+      const r = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, username, password, ref }) });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "failed");
       setStep("verify");
@@ -60,6 +61,7 @@ export default function RegisterForm({ t }: { t: Dict["auth"] }) {
       {step === "form" ? (
         <form onSubmit={doRegister} className="mt-6 space-y-3">
           <Field label={t.email} type="email" value={email} onChange={setEmail} placeholder={t.emailPh} autoComplete="email" />
+          <Field label={t.username} value={username} onChange={setUsername} placeholder={t.usernamePh} autoComplete="username" />
           <Field label={t.password} type="password" value={password} onChange={setPassword} placeholder={t.passwordPh} autoComplete="new-password" />
           {err && <p className="text-[0.74rem]" style={{ color: "#c0152f" }}>{err}</p>}
           <button type="submit" disabled={loading} className="btn btn-primary w-full">{loading ? t.submitting : t.register}</button>

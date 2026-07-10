@@ -23,13 +23,14 @@ export default async function MePage() {
     <div className="px-4 pb-8">
       <header className="flex items-center gap-3 pt-4 pb-2">
         <span className="grid h-14 w-14 place-items-center rounded-2xl font-serif text-2xl" style={{ background: "#f1641e", color: "#fff" }}>
-          {user.email[0].toUpperCase()}
+          {(user.username ?? user.email)[0].toUpperCase()}
         </span>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="font-serif text-[1.05rem] font-bold">{user.email}</span>
+            <span className="font-serif text-[1.05rem] font-bold">{user.username ?? user.email}</span>
             {user.status === "frozen" ? <Seal tone="red">{m.frozen}</Seal> : <Seal tone="orange">{m.normal}</Seal>}
           </div>
+          <div className="text-[0.7rem]" style={{ color: "#8c8c8c" }}>{user.email}</div>
           <div className="text-[0.72rem]" style={{ color: "#757575" }}>
             {tpl(m.registerAt, { date: fmtVN(user.registeredAt.toISOString()), n: `${days} ${m.days}` })}
             {user.isAgent ? tpl(m.agentBadge, { pct: user.commissionTier * 5 }) : ""}

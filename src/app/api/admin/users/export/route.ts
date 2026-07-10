@@ -15,8 +15,9 @@ export async function GET() {
     include: { balance: true, referrer: { select: { email: true } }, _count: { select: { orders: true, descendants: true } } },
   });
 
-  const header = ["邮箱", "注册时间", "状态", "是否代理", "代理等级%", "累计投资U", "可用余额U", "已用提现U", "订单数", "下级数", "上级", "EtsyGo店铺", "充值地址"];
+  const header = ["用户名", "邮箱", "注册时间", "状态", "是否代理", "代理等级%", "累计投资U", "可用余额U", "已用提现U", "订单数", "下级数", "上级", "EtsyGo店铺", "充值地址"];
   const rows = users.map((u) => [
+    u.username ?? "",
     u.email,
     u.registeredAt.toISOString(),
     u.status === "frozen" ? "冻结" : "正常",
