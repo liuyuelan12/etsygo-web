@@ -47,7 +47,7 @@ export async function settleCommissionOnInterest(
       await tx.commissionRecord.create({
         data: { beneficiaryId: u.id, sourceUserId, sourceOrderId, level: u.commissionTier, pct: deltaPct, amount, date },
       });
-    });
+    }, { timeout: 20000, maxWait: 10000 });
     total += amount;
   }
   return total;

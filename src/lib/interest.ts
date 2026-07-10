@@ -48,7 +48,7 @@ export async function creditOrderDay(order: CreditableOrder, dayIndex: number): 
         data: { userId, type: "principal", amount: principal, balanceAfter: finalAvail, refId: order.id, memo: `订单 ${order.id} 到期返本金` },
       });
     }
-  });
+  }, { timeout: 20000, maxWait: 10000 });
 
   // 按下级收益结算级差佣金给上线（带来源订单 id）
   await settleCommissionOnInterest(order.userId, amount, date, order.id);
