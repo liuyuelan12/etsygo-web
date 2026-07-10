@@ -6,6 +6,7 @@ import { getDict, tpl } from "@/lib/i18n-server";
 import InviteCopy from "@/components/user/InviteCopy";
 import TierSetter from "@/components/user/TierSetter";
 import InfoDot from "@/components/user/InfoDot";
+import ClaimCommissionButton from "@/components/user/ClaimCommissionButton";
 
 export default async function TeamPage() {
   const user = await getCurrentUser();
@@ -22,11 +23,13 @@ export default async function TeamPage() {
   const teamSize = rels.length;
   const teamPerf = rels.reduce((s, r) => s + Number(r.descendant.balance?.totalInvested ?? 0), 0);
 
-  const commAgg = await prisma.ledgerEntry.aggregate({
-    where: { userId: user.id, type: "commission" },
-    _sum: { amount: true },
-  });
-  const commEarned = Number(commAgg._sum.amount ?? 0);
+  // 累计佣金=全部佣金记录之和；可领=未领取(claimedAt=null)之和（动态佣金改为手动领取）
+  const [commTotalAgg, commPendingAgg] = await Promise.all([
+    prisma.commissionRecord.aggregate({ where: { beneficiaryId: user.id }, _sum: { amount: true } }),
+    prisma.commissionRecord.aggregate({ where: { beneficiaryId: user.id, claimedAt: null }, _sum: { amount: true } }),
+  ]);
+  const commEarned = Number(commTotalAgg._sum.amount ?? 0);
+  const commPending = Number(commPendingAgg._sum.amount ?? 0);
   const myPct = user.commissionTier * 5;
 
   const commRecords = await prisma.commissionRecord.findMany({
@@ -41,7 +44,7 @@ export default async function TeamPage() {
     const key = c.sourceOrderId ?? `nil:${c.id}`;
     const prev = commByOrder.get(key);
     if (prev) prev.amount += Number(c.amount);
-    else commByOrder.set(key, { email: c.sourceUser.email, orderAmount: c.sourceOrder ? Number(c.sourceOrder.tierAmount) : null, amount: Number(c.amount), lastDate: c.date });
+    else commByOrder.set(key, { email: c.sourceUser.username ?? c.sourceUser.email, orderAmount: c.sourceOrder ? Number(c.sourceOrder.tierAmount) : null, amount: Number(c.amount), lastDate: c.date });
   }
   const commGroups = Array.from(commByOrder.values());
 
@@ -63,6 +66,17 @@ export default async function TeamPage() {
             <Big label={tm.totalComm} value={fmtU(commEarned)} unit="U" tone tip={t.tips.totalIncome} tipAlign="right" />
           </div>
           <p className="mt-3 text-center text-[0.66rem]" style={{ color: "#b7b1cb" }}>{tpl(tm.teamPerfNote, { amount: fmtUInt(teamPerf) })}</p>
+          <div className="mt-4 rounded-xl px-4 py-3" style={{ background: "rgba(255,255,255,0.07)" }}>
+            <div className="flex items-center justify-between">
+              <span className="text-[0.72rem]" style={{ color: "#b7b1cb" }}>{tm.claimable}</span>
+              <span className="font-num text-[1.1rem] font-semibold" style={{ color: "#ff9a5c" }}>{fmtU(commPending)} U</span>
+            </div>
+            {commPending > 0 && (
+              <div className="mt-2.5">
+                <ClaimCommissionButton amount={fmtU(commPending)} t={{ claim: tm.claimComm, claiming: tm.claiming, claimed: tm.claimedComm, none: tm.noComm }} />
+              </div>
+            )}
+          </div>
         </section>
       ) : (
         <section className="paper mt-3 px-5 py-5 text-center">

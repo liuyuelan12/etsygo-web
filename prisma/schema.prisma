@@ -210,9 +210,11 @@ model CommissionRecord {
   pct           Decimal         @db.Decimal(5, 2)
   amount        Decimal         @db.Decimal(38, 18)
   date          String // YYYY-MM-DD
+  claimedAt     DateTime? // null=未领取；上线需自行领取动态佣金后才入账余额
   createdAt     DateTime        @default(now())
 
   @@index([beneficiaryId])
+  @@index([beneficiaryId, claimedAt])
 }
 
 // ---------------- 风控 / 审计 / 链上 ----------------

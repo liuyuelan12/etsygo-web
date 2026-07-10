@@ -73,6 +73,7 @@ const zh = {
     setTier: "设代理", setTierNote: "给直接下级设代理等级(5%~50%)——数值越高，其下级收益里分给你的级差越小。50% 为最高代理。",
     confirm: "确定", commRecords: "佣金记录", noCommRecords: "暂无佣金记录", commFrom: "来自 {email}", commPct: "级差 {pct}%",
     commFromOrder: "{email} · 投资 {amount} U", commEarnedFromOrder: "本单累计分得",
+    claimable: "可领动态佣金", claimComm: "领取佣金 · +{amount} U", claiming: "领取中…", claimedComm: "✅ 已领取 {count} 笔 · +{amount} U", noComm: "暂无可领佣金",
   },
   withdraw: {
     eyebrow: "提款", title: "提取你的营业款", maxLabel: "可提现余额 (U)",
@@ -186,6 +187,7 @@ const en: Dict = {
     setTier: "Set tier", setTierNote: "Set agent tier (5%~50%) for direct downline — higher tier means smaller diff for you. 50% = top agent.",
     confirm: "Confirm", commRecords: "Commission records", noCommRecords: "No commission yet", commFrom: "from {email}", commPct: "diff {pct}%",
     commFromOrder: "{email} · invested {amount} U", commEarnedFromOrder: "earned from this order",
+    claimable: "Claimable commission", claimComm: "Claim · +{amount} U", claiming: "Claiming…", claimedComm: "✅ Claimed {count} · +{amount} U", noComm: "No commission to claim",
   },
   withdraw: {
     eyebrow: "Withdraw", title: "Withdraw your earnings", maxLabel: "Withdrawable balance (U)",
@@ -297,6 +299,7 @@ const vi: Dict = {
     setTier: "Đặt cấp", setTierNote: "Đặt cấp đại lý (5%~50%) cho tuyến dưới trực tiếp — cấp càng cao thì phần chênh của bạn càng nhỏ. 50% = đại lý cao nhất.",
     confirm: "Xác nhận", commRecords: "Lịch sử hoa hồng", noCommRecords: "Chưa có hoa hồng", commFrom: "từ {email}", commPct: "chênh {pct}%",
     commFromOrder: "{email} · đầu tư {amount} U", commEarnedFromOrder: "nhận từ đơn này",
+    claimable: "Hoa hồng có thể nhận", claimComm: "Nhận · +{amount} U", claiming: "Đang nhận…", claimedComm: "✅ Đã nhận {count} · +{amount} U", noComm: "Chưa có hoa hồng",
   },
   withdraw: {
     eyebrow: "Rút tiền", title: "Rút doanh thu của bạn", maxLabel: "Số dư có thể rút (U)",
