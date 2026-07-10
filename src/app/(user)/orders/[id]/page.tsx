@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { getCurrentUser } from "@/lib/session-user";
 import { prisma } from "@/lib/db";
-import { fmtU, fmtUInt, fmtVN } from "@/lib/format";
+import { fmtU, fmtUInt, fmtVN, incomeOrderNo } from "@/lib/format";
 import { getDict, tpl } from "@/lib/i18n-server";
 import Seal from "@/components/Seal";
 import ClaimButton from "@/components/user/ClaimButton";
@@ -99,7 +99,10 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
           <div className="mt-2 space-y-2">
             {order.interests.map((ir) => (
               <div key={ir.id} className="paper flex items-center justify-between px-4 py-2.5">
-                <span className="text-[0.78rem]" style={{ color: "#757575" }}>{ir.date}</span>
+                <div>
+                  <div className="font-num text-[0.68rem]" style={{ color: "#8c8c8c" }}>{t.common.orderNo} {incomeOrderNo(ir)}</div>
+                  <div className="text-[0.72rem]" style={{ color: "#757575" }}>{ir.date}</div>
+                </div>
                 <span className="font-num text-[0.9rem] font-semibold" style={{ color: "#c14600" }}>+{fmtU(Number(ir.amount))} U</span>
               </div>
             ))}

@@ -62,3 +62,9 @@ export function depositOrderNo(e: { id: string; refId?: string | null; createdAt
   const tail = (e.refId ?? e.id).slice(-4).toUpperCase();
   return `ED${fmtVNCompact(iso)}${tail}`;
 }
+
+// 收益（领取每日收益）订单号：EI + 紧凑越南时间 + 计息记录 id 后 4 位
+export function incomeOrderNo(r: { id: string; createdAt: Date | string }): string {
+  const iso = typeof r.createdAt === "string" ? r.createdAt : r.createdAt.toISOString();
+  return `EI${fmtVNCompact(iso)}${r.id.slice(-4).toUpperCase()}`;
+}
