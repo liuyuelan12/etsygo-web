@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Dict } from "@/lib/i18n";
-import { AuthShell, PillField, GoldButton, GoldLink, AUTH } from "@/components/user/auth-ui";
+import { AuthShell, Field, ActionLink } from "@/components/user/auth-ui";
 
 export default function ResetForm({ t }: { t: Dict["auth"] }) {
   const router = useRouter();
@@ -64,24 +64,24 @@ export default function ResetForm({ t }: { t: Dict["auth"] }) {
     <AuthShell
       title={t.resetTitle}
       subtitle={t.resetSub}
-      footer={<>{t.backToLogin}<Link href="/login" style={{ color: AUTH.gold, fontWeight: 600 }}>{t.toLogin}</Link></>}
+      footer={<>{t.backToLogin}<Link href="/login" style={{ color: "#f1641e", fontWeight: 600 }}>{t.toLogin}</Link></>}
     >
-      <form onSubmit={doReset} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <PillField
+      <form onSubmit={doReset} className="space-y-3">
+        <Field
           label={t.email}
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={t.emailPh}
           autoComplete="email"
-          right={<GoldLink type="button" onClick={sendCode} disabled={cooldown > 0 || sending}>{sending ? t.sending : cooldown > 0 ? `${cooldown}s` : t.sendCode}</GoldLink>}
+          right={<ActionLink type="button" onClick={sendCode} disabled={cooldown > 0 || sending}>{sending ? t.sending : cooldown > 0 ? `${cooldown}s` : t.sendCode}</ActionLink>}
         />
-        <PillField label={t.code} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder={t.codePh} inputMode="numeric" />
-        <PillField label={t.newPassword} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.passwordPh} autoComplete="new-password" secure />
-        <PillField label={t.confirmPassword} value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder={t.confirmPh} autoComplete="new-password" secure />
-        {msg && <p style={{ fontSize: "0.74rem", color: AUTH.gold }}>{msg}</p>}
-        {err && <p style={{ fontSize: "0.74rem", color: AUTH.danger }}>{err}</p>}
-        <GoldButton type="submit" disabled={loading}>{loading ? t.submitting : t.reset}</GoldButton>
+        <Field label={t.code} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder={t.codePh} inputMode="numeric" />
+        <Field label={t.newPassword} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.passwordPh} autoComplete="new-password" secure />
+        <Field label={t.confirmPassword} value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder={t.confirmPh} autoComplete="new-password" secure />
+        {msg && <p className="text-[0.74rem]" style={{ color: "#c14600" }}>{msg}</p>}
+        {err && <p className="text-[0.74rem]" style={{ color: "#c0152f" }}>{err}</p>}
+        <button type="submit" disabled={loading} className="btn btn-primary w-full">{loading ? t.submitting : t.reset}</button>
       </form>
     </AuthShell>
   );

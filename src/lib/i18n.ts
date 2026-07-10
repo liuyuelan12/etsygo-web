@@ -17,7 +17,7 @@ const zh = {
     haveAccount: "已有账号？", toLogin: "去登录", noAccount: "还没有账号？", toRegister: "去注册",
     forgotPassword: "忘记密码？", resetTitle: "找回密码", resetSub: "验证邮箱后设置新密码",
     sendCode: "发送验证码", sending: "发送中…", codeSent: "验证码已发送，请查收邮箱",
-    newPassword: "新密码", confirmPassword: "确认", confirmPh: "再次输入新密码", reset: "确定",
+    newPassword: "新密码", confirmPassword: "确认密码", confirmPh: "再次输入新密码", reset: "确定",
     pwdMismatch: "两次输入的密码不一致", backToLogin: "想起来了？",
   },
   home: {
@@ -130,7 +130,7 @@ const en: Dict = {
     haveAccount: "Have an account? ", toLogin: "Log in", noAccount: "No account yet? ", toRegister: "Register",
     forgotPassword: "Forgot password?", resetTitle: "Reset password", resetSub: "Verify your email, then set a new password",
     sendCode: "Send code", sending: "Sending…", codeSent: "Code sent — check your inbox",
-    newPassword: "New", confirmPassword: "Confirm", confirmPh: "Re-enter new password", reset: "Confirm",
+    newPassword: "New password", confirmPassword: "Confirm password", confirmPh: "Re-enter new password", reset: "Confirm",
     pwdMismatch: "Passwords don't match", backToLogin: "Remembered? ",
   },
   home: {
@@ -241,7 +241,7 @@ const vi: Dict = {
     haveAccount: "Đã có tài khoản? ", toLogin: "Đăng nhập", noAccount: "Chưa có tài khoản? ", toRegister: "Đăng ký",
     forgotPassword: "Quên mật khẩu?", resetTitle: "Đặt lại mật khẩu", resetSub: "Xác minh email rồi đặt mật khẩu mới",
     sendCode: "Gửi mã", sending: "Đang gửi…", codeSent: "Đã gửi mã — kiểm tra hộp thư",
-    newPassword: "Mới", confirmPassword: "Xác nhận", confirmPh: "Nhập lại mật khẩu mới", reset: "Xác nhận",
+    newPassword: "Mật khẩu mới", confirmPassword: "Xác nhận mật khẩu", confirmPh: "Nhập lại mật khẩu mới", reset: "Xác nhận",
     pwdMismatch: "Mật khẩu không khớp", backToLogin: "Nhớ ra rồi? ",
   },
   home: {
