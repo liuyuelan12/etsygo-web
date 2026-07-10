@@ -4,7 +4,6 @@ import { getCurrentUser } from "@/lib/session-user";
 import { prisma } from "@/lib/db";
 import { fmtU, fmtVN, depositOrderNo } from "@/lib/format";
 import { getDict, tpl } from "@/lib/i18n-server";
-import { RECEIVE_ADDRESS } from "@/lib/chain";
 import DepositActions from "@/components/user/DepositActions";
 import WalletDeposit from "@/components/user/WalletDeposit";
 
@@ -39,13 +38,13 @@ export default async function DepositPage() {
       <section className="paper mt-3 px-4 py-4">
         <div className="text-[0.78rem] font-semibold">{d.addrTitle}</div>
         <div className="mt-1.5 break-all rounded-xl px-3 py-2.5 font-num text-[0.82rem]" style={{ background: "#f5f5f7", boxShadow: "inset 0 0 0 1px #dcdce1", color: "#222222" }}>
-          {RECEIVE_ADDRESS}
+          {user.depositAddress}
         </div>
         <p className="mt-2 text-[0.68rem]" style={{ color: "#8c8c8c" }}>
           {tpl(d.addrHint, { c: (process.env.USDT_ADDRESS ?? "0x55d398326f99059ff775485246999027b3197955").slice(0, 6) })}
         </p>
         <div className="mt-3">
-          <DepositActions address={RECEIVE_ADDRESS} t={d} />
+          <DepositActions address={user.depositAddress ?? ""} t={d} />
         </div>
       </section>
 
@@ -55,7 +54,7 @@ export default async function DepositPage() {
           <span className="text-[0.82rem] font-semibold">{d.walletTitle}</span>
         </div>
         <p className="mt-1 mb-3 text-[0.68rem]" style={{ color: "#8c8c8c" }}>{d.walletHint}</p>
-        <WalletDeposit depositAddress={RECEIVE_ADDRESS} t={d} />
+        <WalletDeposit depositAddress={user.depositAddress ?? ""} t={d} />
       </section>
 
       <section className="mt-5">

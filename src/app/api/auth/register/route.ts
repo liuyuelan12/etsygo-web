@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
 import { attachReferral } from "@/lib/referral";
+import { deriveDepositAddress } from "@/lib/chain";
 import { sendVerificationCode } from "@/lib/mail";
 import { Prisma } from "@prisma/client";
 import { z } from "zod";
@@ -47,9 +48,11 @@ export async function POST(req: Request) {
         data: { username, passwordHash, verifyCode: code, verifyExpiresAt },
       });
     } else {
+      // 每人一个 HD 派生的专属充值地址（供自动入金按地址归属）
+      const agg = await prisma.user.aggregate({ _max: { depositIndex: true } });
+      const index = (agg._max.depositIndex ?? -1) + 1;
       const created = await prisma.user.create({
-        // 充值走平台统一收款地址(RECEIVE_ADDRESS)，不再派生每人专属地址
-        data: { email, username, passwordHash, verifyCode: code, verifyExpiresAt, balance: { create: {} } },
+        data: { email, username, passwordHash, verifyCode: code, verifyExpiresAt, depositIndex: index, depositAddress: deriveDepositAddress(index), balance: { create: {} } },
       });
       if (ref) await attachReferral(created.id, ref);
     }

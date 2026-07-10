@@ -40,7 +40,7 @@ const zh = {
   },
   deposit: {
     title: "USDT 入金", available: "当前可用余额 (U)",
-    addrTitle: "平台充值地址（BNB Smart Chain）", addrHint: "向此地址转入 BNB Smart Chain USDT（合约 {c}…）后，联系客服或等待后台确认到账。",
+    addrTitle: "你的专属充值地址（BNB Smart Chain）", addrHint: "向此地址转入 BNB Smart Chain USDT（合约 {c}…）后，达到确认数会自动到账。",
     syncBtn: "我已转账 · 刷新到账", syncBusy: "查询中…", copyAddr: "复制充值地址",
     credited: "✅ 到账 +{amount} USDT", noNew: "暂无新到账",
     walletTitle: "用钱包直接充值", walletHint: "连接钱包后，从你自己的钱包发送 BNB Smart Chain USDT 到充值地址，确认后自动到账。",
@@ -154,7 +154,7 @@ const en: Dict = {
   },
   deposit: {
     title: "USDT Deposit", available: "Available balance (U)",
-    addrTitle: "Deposit address (BNB Smart Chain)", addrHint: "Send BNB Smart Chain USDT (contract {c}…) to this address; it will be credited after confirmation by support.",
+    addrTitle: "Your deposit address (BNB Smart Chain)", addrHint: "Send BNB Smart Chain USDT (contract {c}…) to this address; it auto-credits after confirmations.",
     syncBtn: "I've sent · Refresh", syncBusy: "Checking…", copyAddr: "Copy address",
     credited: "✅ Credited +{amount} USDT", noNew: "No new deposit",
     walletTitle: "Deposit with wallet", walletHint: "After connecting, send BNB Smart Chain USDT from your wallet to the address; it credits after confirmations.",
@@ -266,7 +266,7 @@ const vi: Dict = {
   },
   deposit: {
     title: "Nạp USDT", available: "Số dư khả dụng (U)",
-    addrTitle: "Địa chỉ nạp (BNB Smart Chain)", addrHint: "Gửi USDT trên BNB Smart Chain (hợp đồng {c}…) tới địa chỉ này; sẽ được ghi có sau khi bộ phận hỗ trợ xác nhận.",
+    addrTitle: "Địa chỉ nạp riêng của bạn (BNB Smart Chain)", addrHint: "Gửi USDT trên BNB Smart Chain (hợp đồng {c}…) tới địa chỉ này; sẽ tự động ghi có sau khi đủ xác nhận.",
     syncBtn: "Đã chuyển · Làm mới", syncBusy: "Đang kiểm tra…", copyAddr: "Sao chép địa chỉ",
     credited: "✅ Đã ghi có +{amount} USDT", noNew: "Chưa có khoản mới",
     walletTitle: "Nạp trực tiếp bằng ví", walletHint: "Sau khi kết nối, gửi USDT trên BNB Smart Chain từ ví của bạn tới địa chỉ nạp; ghi có sau khi đủ xác nhận.",

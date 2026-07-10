@@ -11,7 +11,9 @@
     "admin": "tsx scripts/admin.ts",
     "update-tiers": "tsx scripts/update-tiers.ts",
     "setup-chow": "tsx scripts/setup-chowkwunhwa.ts",
-    "reconcile": "tsx scripts/reconcile.ts"
+    "reconcile": "tsx scripts/reconcile.ts",
+    "rederive-addr": "tsx scripts/rederive-addresses.ts",
+    "scan-deposits": "tsx scripts/scan-deposits.ts"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
