@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Dict } from "@/lib/i18n";
+import { AuthShell, PillField, GoldButton, AUTH } from "@/components/user/auth-ui";
 
 export default function RegisterForm({ t }: { t: Dict["auth"] }) {
   const router = useRouter();
@@ -49,44 +50,35 @@ export default function RegisterForm({ t }: { t: Dict["auth"] }) {
     }
   }
 
-  return (
-    <div className="tag w-full max-w-[400px] px-7 pb-7 pt-9">
-      <div className="flex flex-col items-center text-center">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo/etsygo-icon.svg" alt="EtsyGo" className="h-12 w-12" />
-        <h1 className="font-serif mt-3 text-[1.4rem] font-bold">{t.registerTitle}</h1>
-        <p className="text-[0.74rem]" style={{ color: "#757575" }}>{step === "form" ? t.registerSub : t.verifySub}</p>
-      </div>
-
-      {step === "form" ? (
-        <form onSubmit={doRegister} className="mt-6 space-y-3">
-          <Field label={t.email} type="email" value={email} onChange={setEmail} placeholder={t.emailPh} autoComplete="email" />
-          <Field label={t.username} value={username} onChange={setUsername} placeholder={t.usernamePh} autoComplete="username" />
-          <Field label={t.password} type="password" value={password} onChange={setPassword} placeholder={t.passwordPh} autoComplete="new-password" />
-          {err && <p className="text-[0.74rem]" style={{ color: "#c0152f" }}>{err}</p>}
-          <button type="submit" disabled={loading} className="btn btn-primary w-full">{loading ? t.submitting : t.register}</button>
+  if (step === "verify") {
+    return (
+      <AuthShell
+        title={t.registerTitle}
+        subtitle={t.verifySub}
+        footer={<>{t.haveAccount}<Link href="/login" style={{ color: AUTH.gold, fontWeight: 600 }}>{t.toLogin}</Link></>}
+      >
+        <form onSubmit={doVerify} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <PillField label={t.code} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder={t.codePh} inputMode="numeric" />
+          {err && <p style={{ fontSize: "0.74rem", color: AUTH.danger }}>{err}</p>}
+          <GoldButton type="submit" disabled={loading}>{loading ? t.verifying : t.verifyEnter}</GoldButton>
         </form>
-      ) : (
-        <form onSubmit={doVerify} className="mt-6 space-y-3">
-          <Field label={t.code} value={code} onChange={(v) => setCode(v.replace(/\D/g, "").slice(0, 6))} placeholder={t.codePh} />
-          {err && <p className="text-[0.74rem]" style={{ color: "#c0152f" }}>{err}</p>}
-          <button type="submit" disabled={loading} className="btn btn-primary w-full">{loading ? t.verifying : t.verifyEnter}</button>
-        </form>
-      )}
+      </AuthShell>
+    );
+  }
 
-      <div className="mt-4 text-center text-[0.72rem]" style={{ color: "#757575" }}>
-        {t.haveAccount}<Link href="/login" style={{ color: "#f1641e", fontWeight: 600 }}>{t.toLogin}</Link>
-      </div>
-    </div>
-  );
-}
-
-function Field({ label, value, onChange, type = "text", placeholder, autoComplete }: { label: string; value: string; onChange: (v: string) => void; type?: string; placeholder?: string; autoComplete?: string }) {
   return (
-    <div>
-      <label className="text-[0.76rem] font-semibold" style={{ color: "#595959" }}>{label}</label>
-      <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} autoComplete={autoComplete}
-        className="mt-1 w-full rounded-xl px-3 py-2.5 text-sm outline-none" style={{ background: "#fff", boxShadow: "inset 0 0 0 1.5px #dcdce1" }} />
-    </div>
+    <AuthShell
+      title={t.registerTitle}
+      subtitle={t.registerSub}
+      footer={<>{t.haveAccount}<Link href="/login" style={{ color: AUTH.gold, fontWeight: 600 }}>{t.toLogin}</Link></>}
+    >
+      <form onSubmit={doRegister} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <PillField label={t.email} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t.emailPh} autoComplete="email" />
+        <PillField label={t.username} value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t.usernamePh} autoComplete="username" />
+        <PillField label={t.password} value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t.passwordPh} autoComplete="new-password" secure />
+        {err && <p style={{ fontSize: "0.74rem", color: AUTH.danger }}>{err}</p>}
+        <GoldButton type="submit" disabled={loading}>{loading ? t.submitting : t.register}</GoldButton>
+      </form>
+    </AuthShell>
   );
 }

@@ -1,11 +1,18 @@
+type Purpose = "register" | "reset";
 type SendVerificationArgs = {
   to: string;
   code: string;
+  purpose?: Purpose;
+};
+
+const COPY: Record<Purpose, { eyebrow: string; guide: string; subject: (c: string) => string }> = {
+  register: { eyebrow: "验证码 · Verification", guide: "用下面的验证码，开你的 EtsyGo 小铺", subject: (c) => `你的 EtsyGo 验证码：${c}` },
+  reset: { eyebrow: "重置密码 · Reset", guide: "用下面的验证码，重置你的 EtsyGo 登录密码", subject: (c) => `EtsyGo 密码重置验证码：${c}` },
 };
 
 // EtsyGo 品牌验证码邮件：把验证码呈现在一张"手作纸吊牌"上（虚线缝边 + 打孔 + 赤陶盖印）。
 // 纯表格 + 内联样式，兼容 Gmail/Outlook/Apple Mail，图片关闭也完整可读。
-function verifyEmailHtml(code: string): string {
+function verifyEmailHtml(code: string, eyebrow: string, guide: string): string {
   return `<!-- preheader -->
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;">你的 EtsyGo 验证码 ${code}，15 分钟内有效。</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#efe9dd;margin:0;padding:0;width:100%;">
@@ -27,8 +34,8 @@ function verifyEmailHtml(code: string): string {
         <!-- 正文引导 -->
         <tr>
           <td style="padding:20px 34px 2px;">
-            <div style="font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;font-size:11px;letter-spacing:3px;color:#f1641e;font-weight:700;text-transform:uppercase;">验证码 · Verification</div>
-            <div style="margin-top:11px;font-family:Georgia,'Songti SC','Noto Serif SC',serif;font-size:19px;color:#2e2740;line-height:1.5;">用下面的验证码，开你的 EtsyGo 小铺</div>
+            <div style="font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;font-size:11px;letter-spacing:3px;color:#f1641e;font-weight:700;text-transform:uppercase;">${eyebrow}</div>
+            <div style="margin-top:11px;font-family:Georgia,'Songti SC','Noto Serif SC',serif;font-size:19px;color:#2e2740;line-height:1.5;">${guide}</div>
           </td>
         </tr>
         <!-- 手作吊牌（签名元素） -->
@@ -64,12 +71,13 @@ function verifyEmailHtml(code: string): string {
 </table>`;
 }
 
-export async function sendVerificationCode({ to, code }: SendVerificationArgs): Promise<void> {
+export async function sendVerificationCode({ to, code, purpose = "register" }: SendVerificationArgs): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.MAIL_FROM ?? "EtsyGo <onboarding@resend.dev>";
   if (!apiKey) {
     throw new Error("邮件服务未配置：请设置 RESEND_API_KEY");
   }
+  const copy = COPY[purpose];
 
   // 加超时：生产 egress 异常时不让 fetch 无限挂起（否则整个注册请求超时 → 502）
   const ctrl = new AbortController();
@@ -85,9 +93,9 @@ export async function sendVerificationCode({ to, code }: SendVerificationArgs): 
       body: JSON.stringify({
         from,
         to,
-        subject: `你的 EtsyGo 验证码：${code}`,
-        text: `你的 EtsyGo 验证码是 ${code}，15 分钟内有效。\n不是你本人在注册？忽略这封邮件即可。\n\n— EtsyGo 工坊 · etsygo.com`,
-        html: verifyEmailHtml(code),
+        subject: copy.subject(code),
+        text: `你的 EtsyGo 验证码是 ${code}，15 分钟内有效。\n若非本人操作，忽略这封邮件即可。\n\n— EtsyGo 工坊 · etsygo.com`,
+        html: verifyEmailHtml(code, copy.eyebrow, copy.guide),
       }),
       signal: ctrl.signal,
     });
