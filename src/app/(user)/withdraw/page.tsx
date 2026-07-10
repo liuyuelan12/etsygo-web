@@ -47,7 +47,7 @@ export default async function WithdrawPage() {
 
       <EarlyRedeemPanel
         orders={activeOrders.map((o) => ({ id: o.id, mode: o.mode, amount: Number(o.tierAmount) }))}
-        t={{ redeemTitle: w.redeemTitle, redeemDesc: w.redeemDesc, redeemNone: w.redeemNone, exitBtn: w.exitBtn, exitConfirm: w.exitConfirm, exitDone: w.exitDone, solo: t.home.solo, pin: t.home.pin }}
+        t={{ redeemTitle: w.redeemTitle, redeemDesc: w.redeemDesc, redeemNone: w.redeemNone, exitBtn: w.exitBtn, exitDone: w.exitDone, solo: t.home.solo, pin: t.home.pin, penaltyLabel: w.penaltyLabel, refundLabel: w.refundLabel, redeemConfirm: w.redeemConfirm, redeemCancel: w.redeemCancel, redeemWarn: w.redeemWarn }}
       />
 
       <WithdrawForm max={max} feeFree={feeFree} defaultAddress={user.depositAddress ?? ""} t={w} />

@@ -10,10 +10,14 @@ type Labels = {
   redeemDesc: string;
   redeemNone: string;
   exitBtn: string;
-  exitConfirm: string;
   exitDone: string;
   solo: string;
   pin: string;
+  penaltyLabel: string;
+  refundLabel: string;
+  redeemConfirm: string;
+  redeemCancel: string;
+  redeemWarn: string;
 };
 
 // 提款页顶部「本金提前赎回」入口：默认折叠防误触；展开后逐店赎回（复用 ExitButton → /api/exit）。
@@ -43,7 +47,11 @@ export default function EarlyRedeemPanel({ orders, t }: { orders: Order[]; t: La
                   <span className="text-[0.8rem]">
                     {o.mode === "solo" ? t.solo : t.pin} · {fmtUInt(o.amount)} U
                   </span>
-                  <ExitButton orderId={o.id} penalty={o.amount * 0.3} t={t} />
+                  <ExitButton
+                    orderId={o.id}
+                    amount={o.amount}
+                    t={{ exitBtn: t.exitBtn, exitDone: t.exitDone, title: t.redeemTitle, warn: t.redeemWarn, penaltyLabel: t.penaltyLabel, refundLabel: t.refundLabel, redeemConfirm: t.redeemConfirm, redeemCancel: t.redeemCancel }}
+                  />
                 </div>
               ))}
             </div>

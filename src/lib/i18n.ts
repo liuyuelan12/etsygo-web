@@ -90,6 +90,7 @@ const zh = {
     copyAddr: "复制", copied: "已复制",
     redeemTitle: "本金提前赎回", redeemDesc: "未到期提前赎回，扣本金 30% 违约金；已发收益保留、不追回。", redeemNone: "当前没有在投本金可赎回。",
     exitBtn: "提前赎回", exitConfirm: "确认?扣违约金 {amount}", exitDone: "已赎回 · 返本 {refund} · 扣违约金 {penalty}",
+    penaltyLabel: "违约金 (30%)", refundLabel: "返回 (70%)", redeemConfirm: "确认赎回", redeemCancel: "取消", redeemWarn: "此操作不可撤回，将扣除 30% 本金违约金。",
   },
   me: {
     days: "天", agentBadge: " · 代理 {pct}%", registerAt: "注册 {date} · {n}",
@@ -204,6 +205,7 @@ const en: Dict = {
     copyAddr: "Copy", copied: "Copied",
     redeemTitle: "Early principal redemption", redeemDesc: "Redeeming early costs a 30% penalty on principal; earned interest is kept.", redeemNone: "No active principal to redeem.",
     exitBtn: "Redeem early", exitConfirm: "Confirm? penalty {amount}", exitDone: "Redeemed · refund {refund} · penalty {penalty}",
+    penaltyLabel: "Penalty (30%)", refundLabel: "Refund (70%)", redeemConfirm: "Confirm redeem", redeemCancel: "Cancel", redeemWarn: "This can't be undone — a 30% principal penalty applies.",
   },
   me: {
     days: "days", agentBadge: " · Agent {pct}%", registerAt: "Joined {date} · {n}",
@@ -316,6 +318,7 @@ const vi: Dict = {
     copyAddr: "Sao chép", copied: "Đã sao chép",
     redeemTitle: "Chuộc gốc sớm", redeemDesc: "Chuộc sớm trước hạn bị trừ 30% gốc; lãi đã nhận được giữ lại.", redeemNone: "Hiện không có gốc đang đầu tư để chuộc.",
     exitBtn: "Chuộc sớm", exitConfirm: "Xác nhận? phạt {amount}", exitDone: "Đã chuộc · hoàn {refund} · phạt {penalty}",
+    penaltyLabel: "Phạt (30%)", refundLabel: "Hoàn (70%)", redeemConfirm: "Xác nhận chuộc", redeemCancel: "Hủy", redeemWarn: "Không thể hoàn tác — bị trừ 30% phạt gốc.",
   },
   me: {
     days: "ngày", agentBadge: " · Đại lý {pct}%", registerAt: "Tham gia {date} · {n}",
