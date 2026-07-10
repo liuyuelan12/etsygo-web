@@ -1,5 +1,6 @@
 import { getSessionUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { D } from "@/lib/money";
 import { z } from "zod";
 
 // 提前退出（违约）：扣本金 30%，返还 70% 到可用余额；已发收益不追回。
@@ -17,9 +18,9 @@ export async function POST(req: Request) {
   if (!order || order.userId !== uid) return Response.json({ error: "订单不存在" }, { status: 404 });
   if (order.status !== "active") return Response.json({ error: "该订单不可退出" }, { status: 400 });
 
-  const principal = Number(order.tierAmount);
-  const refund = principal * 0.7;
-  const penalty = principal * 0.3;
+  const principal = D(order.tierAmount);
+  const refund = principal.mul(0.7);
+  const penalty = principal.mul(0.3);
 
   await prisma.$transaction(async (tx) => {
     const changed = await tx.investmentOrder.updateMany({
@@ -32,15 +33,14 @@ export async function POST(req: Request) {
       where: { userId: uid },
       data: { available: { increment: refund }, totalInvested: { decrement: principal } },
     });
-    const bal = await tx.balance.findUnique({ where: { userId: uid } });
-    const newAvail = Number(bal?.available ?? refund);
+    const newAvail = (await tx.balance.findUnique({ where: { userId: uid } }))!.available;
     await tx.ledgerEntry.create({
-      data: { userId: uid, type: "principal", amount: refund, balanceAfter: newAvail, refId: order.id, memo: `提前退出返本70%（违约金30%=${penalty}）` },
+      data: { userId: uid, type: "principal", amount: refund, balanceAfter: newAvail, refId: order.id, memo: `提前退出返本70%（违约金30%=${penalty.toFixed(2)}）` },
     });
     await tx.operationLog.create({
-      data: { operator: `user:${uid}`, action: "提前退出", target: order.id, before: "营业中", after: `已退出·扣违约金${penalty}` },
+      data: { operator: `user:${uid}`, action: "提前退出", target: order.id, before: "营业中", after: `已退出·扣违约金${penalty.toFixed(2)}` },
     });
   });
 
-  return Response.json({ ok: true, refund, penalty });
+  return Response.json({ ok: true, refund: Number(refund), penalty: Number(penalty) });
 }

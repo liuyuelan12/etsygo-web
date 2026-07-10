@@ -12,6 +12,7 @@ const NAV = [
   { href: "/admin/withdrawals", label: "提现审核", icon: "💸" },
   { href: "/admin/commission", label: "佣金配置", icon: "🪡" },
   { href: "/admin/exits", label: "提前退出", icon: "⚠️" },
+  { href: "/admin/reconcile", label: "资金对账", icon: "⚖️" },
   { href: "/admin/logs", label: "操作日志", icon: "📒" },
   { href: "/admin/settings", label: "参数配置", icon: "⚙️" },
 ];

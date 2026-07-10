@@ -59,7 +59,7 @@ export default async function TeamPage() {
           <span className="eyebrow" style={{ color: "#f1641e" }}>{tm.myAlliance}</span>
           <div className="mt-3 grid grid-cols-3 gap-2">
             <Big label={tm.teamSize} value={`${teamSize}`} unit={tm.people} />
-            <Big label={tm.myTier} value={`${myPct}`} unit="%" mid tone tip={t.tips.myTier} />
+            <Big label={tm.myTier} value={`${myPct}`} unit="%" mid tone />
             <Big label={tm.totalComm} value={fmtU(commEarned)} unit="U" tone tip={t.tips.totalIncome} tipAlign="right" />
           </div>
           <p className="mt-3 text-center text-[0.66rem]" style={{ color: "#b7b1cb" }}>{tpl(tm.teamPerfNote, { amount: fmtUInt(teamPerf) })}</p>
@@ -153,7 +153,6 @@ export default async function TeamPage() {
             )}
           </div>
         )}
-        {isAgent && <p className="mt-3 text-[0.66rem]" style={{ color: "#8c8c8c" }}>{tm.setTierNote}</p>}
       </section>
     </div>
   );

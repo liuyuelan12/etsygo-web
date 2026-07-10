@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getSessionUserId } from "@/lib/auth";
 import { getTiers } from "@/lib/settings";
+import { D } from "@/lib/money";
 import { z } from "zod";
 
 const schema = z.object({
@@ -27,7 +28,8 @@ export async function POST(req: Request) {
     return Response.json({ error: "独立店需填写 EtsyGo 店铺名" }, { status: 400 });
   }
 
-  const dailyRate = tier.dailyRatePct / 100;
+  const amt = D(amount);
+  const dailyRate = D(tier.dailyRatePct).div(100);
   const now = new Date();
   const maturesAt = new Date(now.getTime() + tier.periodDays * 86400000);
   const shopName = tier.mode === "solo" ? etsygoShop!.trim() : null;
@@ -35,17 +37,16 @@ export async function POST(req: Request) {
   try {
     await prisma.$transaction(async (tx) => {
       const deducted = await tx.balance.updateMany({
-        where: { userId: uid, available: { gte: amount } },
-        data: { available: { decrement: amount }, totalInvested: { increment: amount } },
+        where: { userId: uid, available: { gte: amt } },
+        data: { available: { decrement: amt }, totalInvested: { increment: amt } },
       });
       if (deducted.count !== 1) throw new Error("余额不足，请先充值");
-      const bal = await tx.balance.findUnique({ where: { userId: uid } });
-      const newAvail = Number(bal?.available ?? 0);
+      const newAvail = (await tx.balance.findUnique({ where: { userId: uid } }))!.available;
 
     const order = await tx.investmentOrder.create({
       data: {
         userId: uid,
-        tierAmount: amount,
+        tierAmount: amt,
         mode: tier.mode,
         dailyRate,
         periodDays: tier.periodDays,
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
       },
     });
     await tx.ledgerEntry.create({
-      data: { userId: uid, type: "invest", amount: -amount, balanceAfter: newAvail, refId: order.id, memo: `开店 ${tier.mode === "solo" ? "独立店" : "拼店"} ${amount}U` },
+      data: { userId: uid, type: "invest", amount: amt.neg(), balanceAfter: newAvail, refId: order.id, memo: `开店 ${tier.mode === "solo" ? "独立店" : "拼店"} ${amount}U` },
     });
     if (shopName) {
       await tx.user.update({ where: { id: uid }, data: { etsygoShop: shopName } });

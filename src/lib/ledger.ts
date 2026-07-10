@@ -1,4 +1,5 @@
 import { prisma } from "./db";
+import { D } from "./money";
 import { getProvider, getUsdt, fromUsdtUnits } from "./chain";
 
 // 扫描打到用户专属充值地址的 USDT Transfer 事件，按 txHash 幂等入账。
@@ -17,7 +18,7 @@ export async function syncDeposits(userId: string): Promise<{ credited: number }
   if (safeToBlock < fromBlock) return { credited: 0 };
 
   const filter = usdt.filters.Transfer(null, user.depositAddress);
-  let credited = 0;
+  let credited = D(0);
 
   for (let start = fromBlock; start <= safeToBlock; start += blockStep) {
     const end = Math.min(start + blockStep - 1, safeToBlock);
@@ -30,8 +31,8 @@ export async function syncDeposits(userId: string): Promise<{ credited: number }
         args?: { from?: string; to?: string; value?: bigint };
       };
       const txHash = log.transactionHash;
-      const amount = Number(fromUsdtUnits(log.args?.value ?? BigInt(0)));
-      if (!txHash || amount <= 0) continue;
+      const amount = D(fromUsdtUnits(log.args?.value ?? BigInt(0)));
+      if (!txHash || amount.lte(0)) continue;
 
       try {
         await prisma.$transaction(async (tx) => {
@@ -39,8 +40,7 @@ export async function syncDeposits(userId: string): Promise<{ credited: number }
           if (exists) return;
 
           await tx.balance.update({ where: { userId }, data: { available: { increment: amount } } });
-          const bal = await tx.balance.findUnique({ where: { userId } });
-          const newAvail = Number(bal?.available ?? amount);
+          const newAvail = (await tx.balance.findUnique({ where: { userId } }))!.available;
           await tx.ledgerEntry.create({
             data: {
               userId,
@@ -64,7 +64,7 @@ export async function syncDeposits(userId: string): Promise<{ credited: number }
               blockNumber: log.blockNumber,
             },
           });
-          credited += amount;
+          credited = credited.add(amount);
         });
       } catch (e) {
         if (!(e instanceof Error) || !e.message.includes("Unique constraint")) throw e;
@@ -72,5 +72,5 @@ export async function syncDeposits(userId: string): Promise<{ credited: number }
     }
   }
 
-  return { credited };
+  return { credited: Number(credited) };
 }

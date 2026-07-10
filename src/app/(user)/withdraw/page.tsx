@@ -18,7 +18,7 @@ export default async function WithdrawPage() {
 
   const bal = user.balance;
   const max = maxWithdrawable(bal);
-  const feeFree = feeFor(user.registeredAt, 100).fee === 0;
+  const feeFree = feeFor(user.registeredAt, 100).fee.isZero();
 
   const statusLabel: Record<string, string> = { pending: w.statusPending, approved: w.statusApproved, paid: w.statusPaid, rejected: w.statusRejected, canceled: w.statusCanceled };
   const statusTone: Record<string, "orange" | "plum" | "red" | "ink"> = { pending: "plum", approved: "plum", paid: "orange", rejected: "red", canceled: "ink" };

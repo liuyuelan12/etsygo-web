@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "./db";
+import { D } from "./money";
 import { settleCommissionOnInterest } from "./commission";
 
 // 订单起息日 + dayIndex 天，按 UTC+7 取日期字符串（计息幂等键）
@@ -18,37 +19,40 @@ type CreditableOrder = {
 };
 
 // 给单个订单发放"第 dayIndex 天"收益（末日额外返本金并置 matured）。
-// 幂等键 unique(orderId,date)；余额/earned 用原子 increment，避免读-改-写丢更新。
+// 金额全程 Decimal；幂等键 unique(orderId,date)；余额/earned 用原子 increment。
 // 事务成功后再结算上线级差佣金（带 sourceOrderId → 佣金可按订单明细）。
-export async function creditOrderDay(order: CreditableOrder, dayIndex: number): Promise<{ amount: number; isLast: boolean }> {
-  const amount = Number(order.tierAmount) * Number(order.dailyRate);
+export async function creditOrderDay(order: CreditableOrder, dayIndex: number): Promise<{ amount: Prisma.Decimal; isLast: boolean }> {
+  const amount = D(order.tierAmount).mul(order.dailyRate); // 静态利息 = 本金 × 日利率（Decimal 精确）
   const date = dateLabel(order.startedAt, dayIndex);
   const isLast = dayIndex + 1 >= order.periodDays;
-  const principal = Number(order.tierAmount);
+  const principal = D(order.tierAmount);
   const userId = order.userId;
 
-  await prisma.$transaction(async (tx) => {
-    // unique(orderId,date) 保证同订单同"日"只发一次；重复领取在此抛 P2002。
-    await tx.interestRecord.create({ data: { orderId: order.id, date, amount } });
+  await prisma.$transaction(
+    async (tx) => {
+      // unique(orderId,date) 保证同订单同"日"只发一次；重复领取在此抛 P2002。
+      await tx.interestRecord.create({ data: { orderId: order.id, date, amount } });
 
-    await tx.balance.update({ where: { userId }, data: { available: { increment: amount } } });
-    const afterInterest = Number((await tx.balance.findUnique({ where: { userId } }))?.available ?? 0);
-    await tx.investmentOrder.update({
-      where: { id: order.id },
-      data: { earned: { increment: amount }, status: isLast ? "matured" : "active" },
-    });
-    await tx.ledgerEntry.create({
-      data: { userId, type: "interest", amount, balanceAfter: afterInterest, refId: order.id, memo: `订单 ${order.id} 第 ${dayIndex + 1} 天收益` },
-    });
-
-    if (isLast) {
-      await tx.balance.update({ where: { userId }, data: { available: { increment: principal } } });
-      const finalAvail = Number((await tx.balance.findUnique({ where: { userId } }))?.available ?? 0);
-      await tx.ledgerEntry.create({
-        data: { userId, type: "principal", amount: principal, balanceAfter: finalAvail, refId: order.id, memo: `订单 ${order.id} 到期返本金` },
+      await tx.balance.update({ where: { userId }, data: { available: { increment: amount } } });
+      const afterInterest = (await tx.balance.findUnique({ where: { userId } }))!.available;
+      await tx.investmentOrder.update({
+        where: { id: order.id },
+        data: { earned: { increment: amount }, status: isLast ? "matured" : "active" },
       });
-    }
-  }, { timeout: 20000, maxWait: 10000 });
+      await tx.ledgerEntry.create({
+        data: { userId, type: "interest", amount, balanceAfter: afterInterest, refId: order.id, memo: `订单 ${order.id} 第 ${dayIndex + 1} 天收益` },
+      });
+
+      if (isLast) {
+        await tx.balance.update({ where: { userId }, data: { available: { increment: principal } } });
+        const finalAvail = (await tx.balance.findUnique({ where: { userId } }))!.available;
+        await tx.ledgerEntry.create({
+          data: { userId, type: "principal", amount: principal, balanceAfter: finalAvail, refId: order.id, memo: `订单 ${order.id} 到期返本金` },
+        });
+      }
+    },
+    { timeout: 20000, maxWait: 10000 }
+  );
 
   // 按下级收益结算级差佣金给上线（带来源订单 id）
   await settleCommissionOnInterest(order.userId, amount, date, order.id);
@@ -60,7 +64,6 @@ function isDuplicateDay(e: unknown): boolean {
 }
 
 // 用户按单手动领取：只发放"投资起已满整 24h、且尚未计息"的天数（老板口径：投资 24h 后每天可领一次）。
-// creditedDays = 已计息条数；elapsedDays = floor((now-startedAt)/24h) 上限 periodDays。
 export async function claimInterestForOrder(
   userId: string,
   orderId: string
@@ -79,13 +82,13 @@ export async function claimInterestForOrder(
   const creditedDays = order._count.interests;
   const elapsedDays = Math.min(order.periodDays, Math.floor((Date.now() - order.startedAt.getTime()) / 86400000));
 
-  let credited = 0;
+  let credited = D(0);
   let days = 0;
   let matured = false;
   for (let d = creditedDays; d < elapsedDays; d++) {
     try {
       const { amount, isLast } = await creditOrderDay(order, d);
-      credited += amount;
+      credited = credited.add(amount);
       days++;
       if (isLast) {
         matured = true;
@@ -96,7 +99,7 @@ export async function claimInterestForOrder(
       throw e;
     }
   }
-  return { credited, days, matured };
+  return { credited: Number(credited), days, matured };
 }
 
 // 为某用户的所有在投订单各推进一天计息（幂等）。保留给未来每日 cron/worker 调用，不暴露给用户端。
@@ -111,7 +114,7 @@ export async function tickInterestForUser(
     include: { _count: { select: { interests: true } } },
   });
 
-  let credited = 0;
+  let credited = D(0);
   let matured = 0;
   let days = 0;
 
@@ -119,10 +122,10 @@ export async function tickInterestForUser(
     const dayIndex = o._count.interests;
     if (dayIndex >= o.periodDays) continue;
     const { amount, isLast } = await creditOrderDay(o, dayIndex);
-    credited += amount;
+    credited = credited.add(amount);
     days++;
     if (isLast) matured++;
   }
 
-  return { credited, matured, days };
+  return { credited: Number(credited), matured, days };
 }
