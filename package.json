@@ -13,7 +13,8 @@
     "setup-chow": "tsx scripts/setup-chowkwunhwa.ts",
     "reconcile": "tsx scripts/reconcile.ts",
     "rederive-addr": "tsx scripts/rederive-addresses.ts",
-    "scan-deposits": "tsx scripts/scan-deposits.ts"
+    "scan-deposits": "tsx scripts/scan-deposits.ts",
+    "sweep": "tsx scripts/sweep.ts"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
