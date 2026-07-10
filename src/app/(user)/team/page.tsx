@@ -31,10 +31,19 @@ export default async function TeamPage() {
 
   const commRecords = await prisma.commissionRecord.findMany({
     where: { beneficiaryId: user.id },
-    include: { sourceUser: true },
+    include: { sourceUser: true, sourceOrder: true },
     orderBy: { createdAt: "desc" },
-    take: 50,
+    take: 200,
   });
+  // 按来源订单聚合：同一单（下级的某笔投资）本人累计分得多少。records 已按 createdAt desc，首见即最新。
+  const commByOrder = new Map<string, { email: string; orderAmount: number | null; amount: number; lastDate: string }>();
+  for (const c of commRecords) {
+    const key = c.sourceOrderId ?? `nil:${c.id}`;
+    const prev = commByOrder.get(key);
+    if (prev) prev.amount += Number(c.amount);
+    else commByOrder.set(key, { email: c.sourceUser.email, orderAmount: c.sourceOrder ? Number(c.sourceOrder.tierAmount) : null, amount: Number(c.amount), lastDate: c.date });
+  }
+  const commGroups = Array.from(commByOrder.values());
 
   const byLevel = [1, 2, 3].map((lv) => ({ lv, members: rels.filter((r) => r.depth === lv) }));
 
@@ -79,19 +88,19 @@ export default async function TeamPage() {
       {isAgent && (
         <section className="mt-5">
           <h2 className="font-serif text-[1.05rem] font-bold">{tm.commRecords}</h2>
-          {commRecords.length === 0 ? (
+          {commGroups.length === 0 ? (
             <p className="mt-2 text-[0.78rem]" style={{ color: "#757575" }}>{tm.noCommRecords}</p>
           ) : (
             <div className="mt-2 space-y-2">
-              {commRecords.map((c) => (
-                <div key={c.id} className="paper flex items-center justify-between px-4 py-2.5">
+              {commGroups.map((g, i) => (
+                <div key={i} className="paper flex items-center justify-between px-4 py-2.5">
                   <div>
-                    <div className="text-[0.82rem]">{tpl(tm.commFrom, { email: c.sourceUser.email })}</div>
-                    <div className="text-[0.64rem]" style={{ color: "#8c8c8c" }}>
-                      {c.date} · {tpl(tm.commPct, { pct: Number(c.pct) })}
+                    <div className="text-[0.82rem]">
+                      {g.orderAmount != null ? tpl(tm.commFromOrder, { email: g.email, amount: fmtUInt(g.orderAmount) }) : tpl(tm.commFrom, { email: g.email })}
                     </div>
+                    <div className="text-[0.64rem]" style={{ color: "#8c8c8c" }}>{g.lastDate} · {tm.commEarnedFromOrder}</div>
                   </div>
-                  <span className="font-num text-[0.95rem] font-semibold" style={{ color: "#c14600" }}>+{fmtU(Number(c.amount))} U</span>
+                  <span className="font-num text-[0.95rem] font-semibold" style={{ color: "#c14600" }}>+{fmtU(g.amount)} U</span>
                 </div>
               ))}
             </div>

@@ -6,7 +6,7 @@ export const LOCALE_NAMES: Record<Locale, string> = { zh: "中文", en: "English
 const zh = {
   lang: { label: "语言" },
   nav: { shop: "小铺", invest: "开店", team: "联盟", withdraw: "提款", me: "我的" },
-  common: { connectWallet: "连接钱包", logout: "退出", normal: "正常", frozen: "冻结", networkNote: "BNB Smart Chain 主网 · USDT 入金与出款" },
+  common: { connectWallet: "连接钱包", logout: "退出", normal: "正常", frozen: "冻结", networkNote: "BNB Smart Chain 主网 · USDT 入金与出款", orderNo: "订单号" },
   auth: {
     registerTitle: "开你的 EtsyGo 小铺", registerSub: "注册账号", verifySub: "输入邮箱验证码",
     loginTitle: "EtsyGo 小铺", loginSub: "登录你的账号",
@@ -25,6 +25,13 @@ const zh = {
     interestDays: "计息 {passed}/{total} 天", credited: "已入账",
     solo: "独立店", pin: "拼店", statusActive: "营业中", statusMatured: "已到期", statusExited: "已退出",
     investRecords: "投资记录", investedSuccess: "投资 {amount} U 成功", shopRunning: "店铺营业中",
+  },
+  order: {
+    title: "订单详情", amount: "开店金额", earned: "累计收益", daysLabel: "已计息(天)",
+    claimTitle: "每日收益", perDay: "每日 +{amount} U",
+    claimBtn: "领取 {days} 天收益 · +{amount} U", claiming: "领取中…", claimDone: "✅ 已领取 {days} 天 · +{amount} U", claimNone: "暂无可领",
+    allClaimed: "已计息完毕，待到期返本", matured: "已到期 · 本金已返还", exited: "已提前退出", nextClaim: "下次可领：{time}",
+    started: "起投时间", matures: "到期时间", records: "发放明细", noRecords: "还没有发放记录",
   },
   deposit: {
     title: "USDT 入金", available: "当前可用余额 (U)",
@@ -53,13 +60,14 @@ const zh = {
   team: {
     eyebrowAgent: "工坊联盟", eyebrowUser: "邀请好友", title: "带上邻里，一起开店",
     myAlliance: "我的联盟", teamSize: "团队人数", people: "人", myTier: "我的代理等级", totalComm: "累计佣金",
-    teamPerfNote: "团队业绩 {amount} U · 下级每日收益按级差分佣，最高 50%",
+    teamPerfNote: "团队业绩 {amount} U",
     inviteTitle: "邀请好友一起开店", inviteDesc: "分享你的邀请链接，好友注册即成为你的伙伴。",
     inviteCode: "我的邀请码", copyLink: "复制邀请链接", copied: "✅ 邀请链接已复制",
     downlineAgent: "我的下级", downlineUser: "我邀请的人", noDownline: "还没有下级，去分享邀请链接吧",
     layer: "第 {n} 层", invested: "投资 {amount} U · 加入 {date}",
     setTier: "设代理", setTierNote: "给直接下级设代理等级(5%~50%)——数值越高，其下级收益里分给你的级差越小。50% 为最高代理。",
     confirm: "确定", commRecords: "佣金记录", noCommRecords: "暂无佣金记录", commFrom: "来自 {email}", commPct: "级差 {pct}%",
+    commFromOrder: "{email} · 投资 {amount} U", commEarnedFromOrder: "本单累计分得",
   },
   withdraw: {
     eyebrow: "提款", title: "提取你的营业款", maxLabel: "可提现余额 (U)",
@@ -106,7 +114,7 @@ export type Dict = typeof zh;
 const en: Dict = {
   lang: { label: "Language" },
   nav: { shop: "Store", invest: "Open", team: "Team", withdraw: "Withdraw", me: "Me" },
-  common: { connectWallet: "Connect Wallet", logout: "Log out", normal: "Active", frozen: "Frozen", networkNote: "BNB Smart Chain mainnet · USDT deposits and payouts" },
+  common: { connectWallet: "Connect Wallet", logout: "Log out", normal: "Active", frozen: "Frozen", networkNote: "BNB Smart Chain mainnet · USDT deposits and payouts", orderNo: "Order No." },
   auth: {
     registerTitle: "Open your EtsyGo shop", registerSub: "Create account", verifySub: "Enter email code",
     loginTitle: "EtsyGo Shop", loginSub: "Sign in to your account",
@@ -125,6 +133,13 @@ const en: Dict = {
     interestDays: "Day {passed}/{total}", credited: "Earned",
     solo: "Solo shop", pin: "Shared shop", statusActive: "Running", statusMatured: "Matured", statusExited: "Exited",
     investRecords: "Investment records", investedSuccess: "Invested {amount} U", shopRunning: "Shop running",
+  },
+  order: {
+    title: "Order detail", amount: "Amount", earned: "Earned", daysLabel: "Days credited",
+    claimTitle: "Daily earnings", perDay: "+{amount} U / day",
+    claimBtn: "Claim {days} day(s) · +{amount} U", claiming: "Claiming…", claimDone: "✅ Claimed {days} day(s) · +{amount} U", claimNone: "Nothing to claim",
+    allClaimed: "All days credited, awaiting maturity", matured: "Matured · principal returned", exited: "Exited early", nextClaim: "Next claim: {time}",
+    started: "Started", matures: "Matures", records: "Payout history", noRecords: "No payouts yet",
   },
   deposit: {
     title: "USDT Deposit", available: "Available balance (U)",
@@ -153,13 +168,14 @@ const en: Dict = {
   team: {
     eyebrowAgent: "Team Alliance", eyebrowUser: "Invite friends", title: "Bring friends, open shops together",
     myAlliance: "My Alliance", teamSize: "Team size", people: "", myTier: "My agent tier", totalComm: "Total commission",
-    teamPerfNote: "Team volume {amount} U · downline daily earnings split by tier-diff, max 50%",
+    teamPerfNote: "Team volume {amount} U",
     inviteTitle: "Invite friends to open shops", inviteDesc: "Share your invite link; friends who register join you.",
     inviteCode: "My invite code", copyLink: "Copy invite link", copied: "✅ Link copied",
     downlineAgent: "My downline", downlineUser: "People I invited", noDownline: "No downline yet, share your link",
     layer: "Level {n}", invested: "Invested {amount} U · joined {date}",
     setTier: "Set tier", setTierNote: "Set agent tier (5%~50%) for direct downline — higher tier means smaller diff for you. 50% = top agent.",
     confirm: "Confirm", commRecords: "Commission records", noCommRecords: "No commission yet", commFrom: "from {email}", commPct: "diff {pct}%",
+    commFromOrder: "{email} · invested {amount} U", commEarnedFromOrder: "earned from this order",
   },
   withdraw: {
     eyebrow: "Withdraw", title: "Withdraw your earnings", maxLabel: "Withdrawable balance (U)",
@@ -204,7 +220,7 @@ const en: Dict = {
 const vi: Dict = {
   lang: { label: "Ngôn ngữ" },
   nav: { shop: "Cửa hàng", invest: "Mở shop", team: "Đội nhóm", withdraw: "Rút", me: "Tôi" },
-  common: { connectWallet: "Kết nối ví", logout: "Đăng xuất", normal: "Bình thường", frozen: "Đóng băng", networkNote: "BNB Smart Chain mainnet · nạp/rút USDT" },
+  common: { connectWallet: "Kết nối ví", logout: "Đăng xuất", normal: "Bình thường", frozen: "Đóng băng", networkNote: "BNB Smart Chain mainnet · nạp/rút USDT", orderNo: "Mã đơn" },
   auth: {
     registerTitle: "Mở shop EtsyGo của bạn", registerSub: "Đăng ký tài khoản", verifySub: "Nhập mã xác minh email",
     loginTitle: "EtsyGo Shop", loginSub: "Đăng nhập tài khoản",
@@ -223,6 +239,13 @@ const vi: Dict = {
     interestDays: "Ngày {passed}/{total}", credited: "Đã nhận",
     solo: "Shop riêng", pin: "Shop chung", statusActive: "Đang chạy", statusMatured: "Đáo hạn", statusExited: "Đã thoát",
     investRecords: "Lịch sử đầu tư", investedSuccess: "Đã đầu tư {amount} U", shopRunning: "Shop đang hoạt động",
+  },
+  order: {
+    title: "Chi tiết đơn", amount: "Số tiền", earned: "Đã nhận", daysLabel: "Ngày đã tính",
+    claimTitle: "Thu nhập hằng ngày", perDay: "+{amount} U / ngày",
+    claimBtn: "Nhận {days} ngày · +{amount} U", claiming: "Đang nhận…", claimDone: "✅ Đã nhận {days} ngày · +{amount} U", claimNone: "Chưa có để nhận",
+    allClaimed: "Đã tính đủ ngày, chờ đáo hạn", matured: "Đáo hạn · đã hoàn gốc", exited: "Đã thoát sớm", nextClaim: "Lần nhận kế: {time}",
+    started: "Bắt đầu", matures: "Đáo hạn", records: "Lịch sử chi trả", noRecords: "Chưa có chi trả",
   },
   deposit: {
     title: "Nạp USDT", available: "Số dư khả dụng (U)",
@@ -251,13 +274,14 @@ const vi: Dict = {
   team: {
     eyebrowAgent: "Liên minh", eyebrowUser: "Mời bạn bè", title: "Rủ bạn bè cùng mở shop",
     myAlliance: "Liên minh của tôi", teamSize: "Số thành viên", people: "", myTier: "Cấp đại lý", totalComm: "Hoa hồng tích lũy",
-    teamPerfNote: "Doanh số nhóm {amount} U · lãi hàng ngày của tuyến dưới chia theo chênh cấp, tối đa 50%",
+    teamPerfNote: "Doanh số nhóm {amount} U",
     inviteTitle: "Mời bạn bè cùng mở shop", inviteDesc: "Chia sẻ link mời; bạn bè đăng ký sẽ thành tuyến dưới của bạn.",
     inviteCode: "Mã mời của tôi", copyLink: "Sao chép link mời", copied: "✅ Đã sao chép link",
     downlineAgent: "Tuyến dưới", downlineUser: "Người tôi mời", noDownline: "Chưa có tuyến dưới, hãy chia sẻ link",
     layer: "Tầng {n}", invested: "Đầu tư {amount} U · tham gia {date}",
     setTier: "Đặt cấp", setTierNote: "Đặt cấp đại lý (5%~50%) cho tuyến dưới trực tiếp — cấp càng cao thì phần chênh của bạn càng nhỏ. 50% = đại lý cao nhất.",
     confirm: "Xác nhận", commRecords: "Lịch sử hoa hồng", noCommRecords: "Chưa có hoa hồng", commFrom: "từ {email}", commPct: "chênh {pct}%",
+    commFromOrder: "{email} · đầu tư {amount} U", commEarnedFromOrder: "nhận từ đơn này",
   },
   withdraw: {
     eyebrow: "Rút tiền", title: "Rút doanh thu của bạn", maxLabel: "Số dư có thể rút (U)",

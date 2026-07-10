@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session-user";
 import { prisma } from "@/lib/db";
-import { fmtU, fmtVN } from "@/lib/format";
+import { fmtU, fmtVN, depositOrderNo } from "@/lib/format";
 import { getDict, tpl } from "@/lib/i18n-server";
 import DepositActions from "@/components/user/DepositActions";
 import WalletDeposit from "@/components/user/WalletDeposit";
@@ -65,7 +65,10 @@ export default async function DepositPage() {
           <div className="paper mt-2 px-4 py-1">
             {deposits.map((row, i) => (
               <div key={row.id} className="flex items-center justify-between py-2.5" style={{ borderBottom: i < deposits.length - 1 ? "1px solid #e6e6ea" : "none" }}>
-                <span className="text-[0.72rem]" style={{ color: "#757575" }}>{fmtVN(row.createdAt.toISOString(), true)}</span>
+                <div>
+                  <div className="font-num text-[0.7rem]" style={{ color: "#8c8c8c" }}>{t.common.orderNo} {depositOrderNo(row)}</div>
+                  <div className="text-[0.72rem]" style={{ color: "#757575" }}>{fmtVN(row.createdAt.toISOString(), true)}</div>
+                </div>
                 <span className="font-num text-[0.92rem] font-semibold" style={{ color: "#c14600" }}>+{fmtU(Number(row.amount))} U</span>
               </div>
             ))}

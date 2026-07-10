@@ -102,7 +102,7 @@ export default async function HomePage() {
               {orders.map((o) => {
                 const statusText = o.status === "active" ? h.shopRunning : (statusLabel[o.status] ?? o.status);
                 return (
-                  <div key={o.id} className="paper flex items-center justify-between px-4 py-3.5">
+                  <Link key={o.id} href={`/orders/${o.id}`} className="paper flex items-center justify-between px-4 py-3.5">
                     <div className="flex items-center gap-2.5">
                       <span className="grid h-10 w-10 place-items-center rounded-xl text-lg" style={{ background: o.mode === "solo" ? "#efedf4" : "#fdeee6" }} aria-hidden>
                         {o.mode === "solo" ? "🏠" : "🧺"}
@@ -112,8 +112,11 @@ export default async function HomePage() {
                         <div className="text-[0.68rem]" style={{ color: "#757575" }}>{fmtVN(o.startedAt.toISOString(), true)}</div>
                       </div>
                     </div>
-                    <Seal tone={statusTone(o.status)}>{statusText}</Seal>
-                  </div>
+                    <div className="flex items-center gap-2">
+                      <Seal tone={statusTone(o.status)}>{statusText}</Seal>
+                      <span style={{ color: "#bdbdbd" }}>›</span>
+                    </div>
+                  </Link>
                 );
               })}
             </div>

@@ -2,7 +2,7 @@ import Panel from "@/components/admin/Panel";
 import { StatusSeal } from "@/components/Seal";
 import WithdrawAction from "@/components/admin/WithdrawAction";
 import { prisma } from "@/lib/db";
-import { fmtU, fmtVN } from "@/lib/format";
+import { fmtU, fmtVN, withdrawOrderNo } from "@/lib/format";
 
 const LABEL: Record<string, string> = { pending: "审核中", approved: "出款中", paid: "已到账", rejected: "已驳回", canceled: "已取消" };
 
@@ -39,7 +39,7 @@ export default async function AdminWithdrawalsPage() {
           <tbody>
             {rows.map((w) => (
               <tr key={w.id}>
-                <td className="num">{w.id.slice(0, 8)}</td>
+                <td className="num">{withdrawOrderNo(w)}</td>
                 <td>{w.user.email}</td>
                 <td className="num right font-semibold">{fmtU(Number(w.amount))}</td>
                 <td className="num right" style={{ color: Number(w.fee) > 0 ? "#c0152f" : "#595959" }}>{fmtU(Number(w.fee))}</td>

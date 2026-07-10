@@ -3,7 +3,7 @@ import Panel from "@/components/admin/Panel";
 import { StatusSeal } from "@/components/Seal";
 import WithdrawAction from "@/components/admin/WithdrawAction";
 import { prisma } from "@/lib/db";
-import { fmtU, fmtUInt, fmtVN } from "@/lib/format";
+import { fmtU, fmtUInt, fmtVN, withdrawOrderNo } from "@/lib/format";
 
 const ORDER_LABEL: Record<string, string> = { active: "营业中", matured: "已到期", exited: "已退出" };
 const TONE = ["#f1641e", "#2f7d31", "#2e2740", "#c14600"];
@@ -55,7 +55,7 @@ export default async function AdminDashboard() {
                   <tr><td colSpan={5} style={{ color: "#8c8c8c" }}>暂无待审</td></tr>
                 ) : pending.map((w) => (
                   <tr key={w.id}>
-                    <td className="num">{w.id.slice(0, 8)}</td>
+                    <td className="num">{withdrawOrderNo(w)}</td>
                     <td>{w.user.email}</td>
                     <td className="num right font-semibold">{fmtU(Number(w.amount))}</td>
                     <td style={{ color: "#595959" }}>{fmtVN(w.submittedAt.toISOString(), true)}</td>

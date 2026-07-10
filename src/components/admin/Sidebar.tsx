@@ -7,6 +7,7 @@ const NAV = [
   { href: "/admin", label: "仪表盘", icon: "🪵", exact: true },
   { href: "/admin/users", label: "用户管理", icon: "👤" },
   { href: "/admin/orders", label: "投资订单", icon: "🧾" },
+  { href: "/admin/deposits", label: "充值记录", icon: "💰" },
   { href: "/admin/withdrawals", label: "提现审核", icon: "💸" },
   { href: "/admin/commission", label: "佣金配置", icon: "🪡" },
   { href: "/admin/exits", label: "提前退出", icon: "⚠️" },

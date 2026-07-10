@@ -9,7 +9,8 @@ import { prisma } from "./db";
 export async function settleCommissionOnInterest(
   sourceUserId: string,
   interestAmount: number,
-  date: string
+  date: string,
+  sourceOrderId?: string
 ): Promise<number> {
   if (interestAmount <= 0) return 0;
 
@@ -59,7 +60,7 @@ export async function settleCommissionOnInterest(
         },
       });
       await tx.commissionRecord.create({
-        data: { beneficiaryId: node.userId, sourceUserId, level: u.commissionTier, pct: deltaPct, amount, date },
+        data: { beneficiaryId: node.userId, sourceUserId, sourceOrderId, level: u.commissionTier, pct: deltaPct, amount, date },
       });
     });
     total += amount;

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/session-user";
 import { prisma } from "@/lib/db";
 import { maxWithdrawable, feeFor } from "@/lib/withdraw";
-import { fmtU, fmtVN, daysSince } from "@/lib/format";
+import { fmtU, fmtVN, daysSince, withdrawOrderNo } from "@/lib/format";
 import { getDict, tpl } from "@/lib/i18n-server";
 import Seal from "@/components/Seal";
 import InfoDot from "@/components/user/InfoDot";
@@ -63,6 +63,7 @@ export default async function WithdrawPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-num text-[1.05rem] font-semibold">{fmtU(Number(row.amount))} U</div>
+                    <div className="font-num text-[0.66rem]" style={{ color: "#8c8c8c" }}>{t.common.orderNo} {withdrawOrderNo(row)}</div>
                     <div className="text-[0.68rem]" style={{ color: "#757575" }}>
                       {fmtVN(row.submittedAt.toISOString(), true)}
                       {Number(row.fee) > 0 && ` · ${w.fee} ${fmtU(Number(row.fee))}`}
