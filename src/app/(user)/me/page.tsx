@@ -30,7 +30,7 @@ export default async function MePage() {
             <span className="font-serif text-[1.05rem] font-bold">{user.username ?? user.email}</span>
             {user.status === "frozen" ? <Seal tone="red">{m.frozen}</Seal> : <Seal tone="orange">{m.normal}</Seal>}
           </div>
-          <div className="text-[0.7rem]" style={{ color: "#8c8c8c" }}>{user.email}</div>
+          {user.username && <div className="text-[0.7rem]" style={{ color: "#8c8c8c" }}>{user.email}</div>}
           <div className="text-[0.72rem]" style={{ color: "#757575" }}>
             {tpl(m.registerAt, { date: fmtVN(user.registeredAt.toISOString()), n: `${days} ${m.days}` })}
             {user.isAgent ? tpl(m.agentBadge, { pct: user.commissionTier * 5 }) : ""}
@@ -66,10 +66,7 @@ export default async function MePage() {
         </div>
       </section>
 
-      <Link href="/admin" className="mt-5 flex items-center justify-center gap-2 rounded-xl py-3 text-[0.82rem] font-semibold" style={{ background: "#2e2740", color: "#f4f4f6" }}>
-        {m.adminEntry}
-      </Link>
-      <p className="mt-3 text-center text-[0.64rem]" style={{ color: "#8c8c8c" }}>{t.common.networkNote}</p>
+      <p className="mt-5 text-center text-[0.64rem]" style={{ color: "#8c8c8c" }}>{t.common.networkNote}</p>
     </div>
   );
 }
